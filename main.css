@@ -1,0 +1,51 @@
+@import url('https://fonts.googleapis.com/css?family=Roboto');
+body {
+  font-family: 'Roboto', sans-serif;
+}
+#chart_div {  
+  margin-bottom: 50px;
+}
+thead {
+  background-color: #83C538;
+}
+#table {
+  max-width: 80%;
+  margin: auto;
+  text-align: center;
+}
+.clickable {
+  cursor: pointer;
+}
+.panel-default {
+  border-color: white;
+  border-radius: 10px;
+}
+.title {
+  text-align: center;
+  margin: auto;
+  margin-top: 15px;
+  font-size: 40px;
+  text-shadow: 1px 1px #000;
+}
+.arrow {
+  width: 20%;
+  height: 10%;
+  font-size: 15px;
+  margin-bottom: 25px;
+}
+.arrowFirst {
+  width: 20%;
+  height: 10%;
+  font-size: 15px;
+  margin-bottom: 5px;
+}
+.arrow a, .arrowFirst a {
+  text-decoration: none;
+  color: #000;
+}
+.arrow img, .arrowFirst img {
+  margin-left: 40px;
+  margin-right: 10px;
+  width: 10%;
+  height: auto;
+}
