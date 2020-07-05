@@ -1,6 +1,6 @@
 <?php
 
-include 'header.html';
+require 'header.html';
 require 'functions.php';
 
 if (isset($_GET['address']) && !empty($_GET['address']) && trim($_GET['address'] != '')) {
@@ -8,34 +8,43 @@ if (isset($_GET['address']) && !empty($_GET['address']) && trim($_GET['address']
 
     $xml = new XMLReader();
     $xml->open('hosts.xml');
+
     $vulns = array();
     $psvs = array();
     $currAdress = 0;
 
     while ($xml->read()) {
-        // À chaque changement de machines dans l'XML, on change l'adresse IP courante
-        if ($xml->nodeType == XMLREADER::ELEMENT && $xml->localName == 'address' && $xml->getAttribute('addrtype') == 'ipv4') $currAdress = $xml->getAttribute('addr');
-        
-        // Si le Reader est positionné sur la bonne machine (variable machine == adresse en paramètre)
-        if ($currAdress  == $ipAddress) {
-            if ($xml->nodeType == XMLREADER::ELEMENT && $xml->localName == 'port') {
-                $psv = array();
-                $psv['protocol'] = $xml->getAttribute('protocol');
-                $psv['portNb'] = $xml->getAttribute('portid');
-            }
-            if ($xml->nodeType == XMLREADER::ELEMENT && $xml->localName == 'state') {
-                if ($xml->getAttribute('state') == 'open') $psv['state'] = 'Ouvert';
-                else $psv['state'] = 'Fermé';
-            }
-            if ($xml->nodeType == XMLREADER::ELEMENT && $xml->localName == 'service') {
-                if ($xml->getAttribute('name') == 'unknown') $psv['serviceName'] = '-';
-                else $psv['serviceName'] = $xml->getAttribute('name');
-                if ($xml->getAttribute('version') != NULL) $psv['serviceVersion'] = $xml->getAttribute('version');
-                else $psv['serviceVersion'] = '-';
-                $vulns = readVulnsInXML($ipAddress, $psv['portNb']);
-                if (empty($vulns)) $psv['vulnerable'] = 'Non';
-                else $psv['vulnerable'] = 'Oui';
-                $psvs[] = $psv;
+
+        // On vérfie que le curseur de lecture se trouve bien sur un noeud et pas du texte
+        if ($xml->nodeType == XMLREADER::ELEMENT) {
+
+            // À chaque changement de machines dans l'XML, on change l'adresse IP courante
+            if ($xml->localName == 'address' && $xml->getAttribute('addrtype') == 'ipv4') $currAdress = $xml->getAttribute('addr');
+            
+            // Si le Reader est positionné sur la bonne machine (variable machine == adresse en paramètre)
+            if ($currAdress  == $ipAddress) {
+                if ($xml->localName == 'port') {
+                    $psv = array();
+                    $psv['protocol'] = $xml->getAttribute('protocol');
+                    $psv['portNb'] = $xml->getAttribute('portid');
+                }
+                if ($xml->localName == 'state') {
+                    if ($xml->getAttribute('state') == 'open') $psv['state'] = 'Ouvert';
+                    else $psv['state'] = 'Fermé';
+                }
+                if ($xml->localName == 'service') {
+                    // Si le service est renseigné 'unknown', on le remplace par '-'
+                    if ($xml->getAttribute('name') == 'unknown') $psv['serviceName'] = '-';
+                    else $psv['serviceName'] = $xml->getAttribute('name');
+                    if ($xml->getAttribute('version') != NULL) $psv['serviceVersion'] = $xml->getAttribute('version');
+                    // S'il n'y pas d'attribut version, on remplace la version pas '-'
+                    else $psv['serviceVersion'] = '-';
+                    // On regarde si des vulnérabilités sont existantes pour ce PSV
+                    $vulns = readVulnsInXML($ipAddress, $psv['portNb']);
+                    if (empty($vulns)) $psv['vulnerable'] = 'Non';
+                    else $psv['vulnerable'] = 'Oui';
+                    $psvs[] = $psv;
+                }
             }
         }
     }

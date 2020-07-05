@@ -1,6 +1,6 @@
 <?php
 
-include 'header.html';
+require 'header.html';
 require 'functions.php';
 
 $xml = new XMLReader();
@@ -20,15 +20,16 @@ while ($xml->read()) {
         if ($xml->localName == 'address' && $xml->getAttribute('addrtype') == 'mac') {
             $host['mac'] = $xml->getAttribute('addr');
         }
-        // Si le noeud adress addrtype=='mac' n'existe pas
+        // Si le noeud adress addr addrtype=='mac' n'existe pas
         else if ($xml->localName == 'address' && $xml->getAttribute('addrtype') != 'mac') {
             $host['mac'] = '-';
         }
         if ($xml->localName == 'osmatch') {
             $host['name'] = $xml->getAttribute('name');
             $host['accuracy'] = $xml->getAttribute('accuracy');
-            if (in_array_r($host['mac'], $hosts)){
-                $id = searchForId_UsedByHosts($host['mac'], $hosts);
+            // Pour une adresse, on doit vérifier que l'OS récupéré est celui le plus précis
+            if (in_array_r($host['ipv4'], $hosts)){
+                $id = searchForId_UsedByHosts($host['ipv4'], $hosts);
                 // Si l'accuracy OS récupéré est > à celle déjà présente dans l'array, on la remplace
                 if ($host['accuracy'] > $hosts[$id]['accuracy']) {
                     $hosts[$id]['accuracy'] = $host['accuracy'];
@@ -54,7 +55,7 @@ google.charts.load('current', {'packages':['corechart']});
 // Quand l'API est chargé, on éxecute la fonction de dessin graphique
 google.charts.setOnLoadCallback(drawChart);
 
-// Crée et rempli une data table, instancie un bar chart, le rempli de data le dessine
+// Crée et remplit une data table, instancie un bar chart, le rempli de data le dessine
 function drawChart() {
     
     var data = new google.visualization.DataTable();

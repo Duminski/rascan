@@ -1,6 +1,6 @@
 <?php
 
-include 'header.html';
+require 'header.html';
 require 'functions.php';
 
 if (isset($_GET['portID']) && !empty($_GET['portID']) && trim($_GET['portID'] != '') &&
